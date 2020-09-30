@@ -10,8 +10,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BedWars extends JavaPlugin implements Listener {
@@ -44,7 +46,6 @@ public class BedWars extends JavaPlugin implements Listener {
             for (Teams team : teams) {
                 if (team.teamPlayers.size() < 1) {
                     team.addPlayer(player);
-                    player.sendMessage(teamAssignedMessage(team));
                     break;
                 }
             }
@@ -58,7 +59,7 @@ public class BedWars extends JavaPlugin implements Listener {
 
         for (int i = 10; i > 0; i--) {
             if (starting) {
-                Bukkit.broadcastMessage(countdownMessage(i, onlinePlayers, maxPlayers));
+                countdownMessage(i);
             } else {
                 Bukkit.broadcastMessage("&eInício da partida cancelado. Aguardando jogadores.");
                 return;
@@ -82,7 +83,7 @@ public class BedWars extends JavaPlugin implements Listener {
         onlinePlayers = Bukkit.getOnlinePlayers().size();
         Player player = event.getPlayer();
 
-        Bukkit.broadcastMessage(playerJoinMessage(player, onlinePlayers, maxPlayers));
+        playerJoinMessage(player, onlinePlayers, maxPlayers);
 
         if (!starting && onlinePlayers == minPlayers) {
             startCountdown();
@@ -94,7 +95,7 @@ public class BedWars extends JavaPlugin implements Listener {
         onlinePlayers = Bukkit.getOnlinePlayers().size();
         Player player = event.getPlayer();
 
-        Bukkit.broadcastMessage(playerLeaveMessage(player, onlinePlayers, maxPlayers));
+        playerLeaveMessage(player, onlinePlayers, maxPlayers);
 
         if (starting && onlinePlayers < minPlayers) {
             starting = false;
@@ -113,25 +114,34 @@ public class BedWars extends JavaPlugin implements Listener {
             if (playerTeam.hasBed()) {
                 player.teleport(playerTeam.location);
                 player.setHealth(player.getMaxHealth());
-                Bukkit.broadcastMessage(playerKillMessage(player, damager));
+                playerKillMessage(player, damager);
             } else {
                 spectator(player);
-                Bukkit.broadcastMessage(finalKillMessage(player, damager));
+                finalKillMessage(player, damager);
             }
         }
     }
 
     @EventHandler
-    public void onBlockBreakEvent(BlockBreakEvent event) {
+    public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         Block block = event.getBlock();
-        Teams playerTeam = Teams.getTeam(player);
 
         if (event.getBlock().getType().equals(Material.BED_BLOCK) && Teams.isBedLocation(teams, block)) {
             Teams bedTeam = Teams.getTeam(block);
 
             bedTeam.breakBed(player, block);
         }
+    }
+
+    @EventHandler
+    public void onWeatherChange(WeatherChangeEvent event) {
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onFoodLevelChange(FoodLevelChangeEvent event) {
+        event.setCancelled(true);
     }
 
     private void spectator(Player player) {

@@ -34,7 +34,7 @@ public class Teams {
 
     public void addPlayer(Player player) {
         this.teamPlayers.add(player);
-        player.sendMessage(String.format("Você está no time %s!", this.name));
+        teamAssignedMessage(player);
     }
 
     public static Teams getTeam(Player player) {
@@ -61,7 +61,6 @@ public class Teams {
                 return team;
             }
         }
-
         return null;
     }
 
@@ -133,7 +132,7 @@ public class Teams {
     public void breakBed(Player player, Block block) {
         this.bed = false;
 
-        Bukkit.broadcastMessage(bedBreakMessage(player, block));
+        bedBreakMessage(player, block);
     }
 
 }
