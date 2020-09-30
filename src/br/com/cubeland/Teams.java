@@ -1,5 +1,6 @@
 package br.com.cubeland;
 
+import static br.com.cubeland.messages.Messages.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -129,10 +130,10 @@ public class Teams {
         return color;
     }
 
-    public void breakBed(Teams breakerTeam) {
+    public void breakBed(Player player, Block block) {
         this.bed = false;
 
-        Bukkit.broadcastMessage(String.format("A cama do time %s foi quebrada pelo time %s!", this.name, breakerTeam.name));
+        Bukkit.broadcastMessage(bedBreakMessage(player, block));
     }
 
 }

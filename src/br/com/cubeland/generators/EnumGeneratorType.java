@@ -21,7 +21,6 @@ public enum EnumGeneratorType {
     }
 
     public double getDelay(int level) {
-
         double[] emeraldGenerator = {10.0d, 8,0d, 6.0d};
         double[] diamondGenerator = {10.0d, 8,0d, 6.0d};
         double[] goldGenerator = {10.0d, 8,0d, 6.0d};
