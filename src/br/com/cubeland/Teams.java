@@ -19,7 +19,7 @@ public class Teams {
     String name;
     String color;
     int woolData;
-    boolean bed;
+    boolean bed = true;
 
     public Teams(EnumTeams team) {
         this.location = team.getLocation();
@@ -27,7 +27,6 @@ public class Teams {
         this.color = team.getColor();
         this.woolData = team.getData();
         this.bedLocation = team.getBedLocation();
-        this.bed = true;
 
         teams.add(this);
     }
@@ -40,32 +39,37 @@ public class Teams {
     public static Teams getTeam(Player player) {
         for (Teams team : teams) {
             if (getTeam(team, player) != null) {
+                Bukkit.broadcastMessage(String.format("gTPlayer - %s %s", player.getName(), team.getName()));
                 return team;
             }
         }
-
+        Bukkit.broadcastMessage("gtPlayer - Nenhum time encontrado.");
         return null;
     }
 
     public static Teams getTeam(Teams team, Player player) {
         if (team.teamPlayers.contains(player)) {
+            Bukkit.broadcastMessage(String.format("gTPlayer(2) - %s %s", player.getName(), team.getName()));
             return team;
         }
-
+        Bukkit.broadcastMessage("gtPlayer(2) - Nenhum time encontrado.");
         return null;
     }
 
     public static Teams getTeam(Block block) {
         for (Teams team : teams) {
             if (getTeam(team, block) != null) {
+                Bukkit.broadcastMessage(String.format("gTB - %s %s", block.getType().toString(), team.getName()));
                 return team;
             }
         }
+        Bukkit.broadcastMessage("gtBlock - Nenhum time encontrado.");
         return null;
     }
 
     public static Teams getTeam(Teams team, Block block) {
         if (isBedLocation(team, block)) {
+            Bukkit.broadcastMessage(String.format("gTBlock (2) - %s %s", block.getType().toString(), team.getName()));
             return team;
         }
 
@@ -76,21 +80,22 @@ public class Teams {
         Location location = block.getLocation();
         Location upperBedLocation = getUpperBedLocation(block);
 
-        if (team.hasBed() && (team.bedLocation.equals(location) || team.bedLocation.equals(upperBedLocation))) {
-            Bukkit.broadcastMessage("Aqui tem cama (single team).");
+        if (team.hasBed() && team.bedLocation.equals(location)) {
+            Bukkit.broadcastMessage("iBDL - true");
             return true;
         }
-
+        Bukkit.broadcastMessage("iBDL - false");
         return false;
     }
 
     public static boolean isBedLocation(Teams[] teams, Block block) {
         for (Teams team : teams) {
             if (isBedLocation(team, block)) {
+                Bukkit.broadcastMessage("iBDL[] - true");
                 return true;
             }
         }
-
+        Bukkit.broadcastMessage("iBDL[] - false");
         return false;
     }
 
@@ -130,9 +135,8 @@ public class Teams {
     }
 
     public void breakBed(Player player, Block block) {
-        this.bed = false;
-
         bedBreakMessage(player, block);
+        this.bed = false;
     }
 
 }

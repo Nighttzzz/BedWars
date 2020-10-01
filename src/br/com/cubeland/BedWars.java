@@ -104,20 +104,33 @@ public class BedWars extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerDamageByEntity(EntityDamageByEntityEvent event) {
-        Player player = (Player) event.getEntity();
-        Player damager = (Player) event.getDamager();
-        Teams playerTeam = Teams.getTeam(player);
 
-        if (player.getHealth() - event.getDamage() < 1) {
-            event.setCancelled(true);
+        Player player;
+        Player attacker;
 
-            if (playerTeam.hasBed()) {
-                player.teleport(playerTeam.location);
-                player.setHealth(player.getMaxHealth());
-                playerKillMessage(player, damager);
-            } else {
-                spectator(player);
-                finalKillMessage(player, damager);
+        if (event.getEntity() instanceof Player && event.getDamager() instanceof Player) {
+            player = (Player) event.getEntity();
+            Teams playerTeam = Teams.getTeam(player);
+            attacker = (Player) event.getDamager();
+            Teams damagerTeam = Teams.getTeam(attacker);
+
+            Bukkit.broadcastMessage(String.format("oPDBE - %s", player));
+            Bukkit.broadcastMessage(String.format("oPDBE - %s", playerTeam.getName()));
+            Bukkit.broadcastMessage(String.format("oPDBE - %s", attacker));
+            Bukkit.broadcastMessage(String.format("oPDBE - %s", damagerTeam.getName()));
+            Bukkit.broadcastMessage("----------------------------------");
+
+            if (player.getHealth() - event.getDamage() < 1) {
+                event.setCancelled(true);
+
+                if (playerTeam.hasBed()) {
+                    player.teleport(playerTeam.location);
+                    player.setHealth(player.getMaxHealth());
+                    playerKillMessage(player, attacker);
+                } else {
+                    spectator(player);
+                    finalKillMessage(player, attacker);
+                }
             }
         }
     }
