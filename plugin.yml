@@ -2,3 +2,8 @@ main: br.com.cubeland.BedWars
 name: BedWars
 version: '1.0'
 description: BedWars
+load: STARTUP
+commands:
+  admin:
+    description: Admin commands
+    usage: /<command>

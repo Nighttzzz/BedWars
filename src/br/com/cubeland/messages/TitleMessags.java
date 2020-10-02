@@ -1,4 +1,4 @@
 package br.com.cubeland.messages;
 
-public class Titles {
+public class TitleMessags {
 }

@@ -2,12 +2,13 @@ package br.com.cubeland;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 
 public enum EnumTeams {
-    RED("Vermelho", "&c", 14, new Location(Bukkit.getWorld("world1"), -33.5, 66, 0.5), new Location(Bukkit.getWorld("world1"), -30, 66, 0)),
-    GREEN("Verde", "&a", 5, new Location(Bukkit.getWorld("world1"), 0.5, 66, -33.5), new Location(Bukkit.getWorld("world1"), 0, 66, -30)),
-    BLUE("Azul", "&9", 3, new Location(Bukkit.getWorld("world1"), 34.5, 66, 0.5), new Location(Bukkit.getWorld("world1"), 31, 66, 0)),
-    ORANGE("Laranja", "&6", 1, new Location(Bukkit.getWorld("world1"), 0.5, 66, 34.5), new Location(Bukkit.getWorld("world1"), 0, 66, 31));
+    RED("Vermelho", "&c", 14, new Location(Bukkit.getWorld("world"), -33.5, 66, 0.5), new Location(Bukkit.getWorld("world"), -30, 66, 0)),
+    GREEN("Verde", "&a", 5, new Location(Bukkit.getWorld("world"), 0.5, 66, -33.5), new Location(Bukkit.getWorld("world"), 0, 66, -30)),
+    BLUE("Azul", "&9", 3, new Location(Bukkit.getWorld("world"), 34.5, 66, 0.5), new Location(Bukkit.getWorld("world"), 31, 66, 0)),
+    ORANGE("Laranja", "&6", 1, new Location(Bukkit.getWorld("world"), 0.5, 66, 34.5), new Location(Bukkit.getWorld("world"), 0, 66, 31));
 
     private final String name;
     private final int data;
@@ -35,9 +36,7 @@ public enum EnumTeams {
         return color;
     }
 
-    public Location getLocation() {
-        return location;
-    }
+    public Location getLocation() { return location; }
 
     public Location getBedLocation() {
         return bedLocation;
