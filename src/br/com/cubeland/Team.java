@@ -37,7 +37,12 @@ public class Team {
     public void addPlayer(Player player) {
         this.teamPlayers.add(player);
         players.add(player);
-        teamAssignedMessage(player);
+        sendTeamAssignedMessage(player);
+    }
+
+    public void breakBed(Player player, Block block) {
+        sendBedBreakMessage(player, block);
+        this.bed = false;
     }
 
     public static Team getTeam(Player player) {
@@ -142,10 +147,5 @@ public class Team {
     public static List<Team> getTeams() { return teams; }
 
     public static List<Player> getPlayers() { return players; }
-
-    public void breakBed(Player player, Block block) {
-        bedBreakMessage(player, block);
-        this.bed = false;
-    }
 
 }

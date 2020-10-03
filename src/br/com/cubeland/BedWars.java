@@ -53,7 +53,6 @@ public class BedWars extends JavaPlugin implements Listener {
                 }
             }
         }
-
     }
 
     public void startMatch() {
@@ -68,7 +67,7 @@ public class BedWars extends JavaPlugin implements Listener {
         broadcastSoundEffect(Sound.FIREWORK_BLAST2, 20, 2);
     }
 
-    public void startCountdown() {
+    public void countdown() {
         status = STARTING;
 
         new BukkitRunnable(){
@@ -80,12 +79,12 @@ public class BedWars extends JavaPlugin implements Listener {
                             this.cancel();
                             startMatch();
                         } else {
-                            countdownMessage(countdownTimer--);
+                            sendCountdownMessage(countdownTimer--);
                         }
                         break;
                     case AWAITING_PLAYERS:
                         this.cancel();
-                        cancelCountdownMessage();
+                        sendCancelCountdownMessage();
                         countdownTimer = 10;
                         break;
                 }
@@ -93,29 +92,47 @@ public class BedWars extends JavaPlugin implements Listener {
         }.runTaskTimer(this, 0, 20);
     }
 
-    public void playerDeathHandler(Player player, Player killer) {
+    public void handlePlayerDeath(Player player, Player killer) {
         Team playerTeam = Team.getTeam(player);
 
         if (playerTeam.hasBed()) {
             player.teleport(playerTeam.getLocation());
             player.setHealth(player.getMaxHealth());
-            playerKillMessage(player, killer);
+            sendPlayerKillMessage(player, killer);
         } else {
             spectator(player);
-            finalKillMessage(player, killer);
+            sendFinalKillMessage(player, killer);
         }
     }
 
-    public void playerDeathHandler(Player player) {
+    public void handlePlayerDeath(Player player) {
         Team playerTeam = Team.getTeam(player);
 
         if (playerTeam.hasBed()) {
             player.teleport(playerTeam.getLocation());
             player.setHealth(player.getMaxHealth());
-            playerKillMessage(player);
+            sendPlayerKillMessage(player);
         } else {
             spectator(player);
-            finalKillMessage(player);
+            sendFinalKillMessage(player);
+        }
+    }
+
+    public void handleBedBreak(Player playerBreaker, Block block) {
+        if (Team.isBedLocation(teams, block)) {
+            Team bedTeam = Team.getTeam(block);
+            bedTeam.breakBed(playerBreaker, block);
+        }
+    }
+
+    public void handleVoidDamage(EntityDamageEvent event, Player player) {
+        event.setCancelled(true);
+        player.setFallDistance(0);
+
+        if (status.equals(AWAITING_PLAYERS) || status.equals(STARTING)) {
+            player.teleport(new Location(Bukkit.getWorld("world"), 0, 65, 0));
+        } else {
+            handlePlayerDeath(player);
         }
     }
 
@@ -125,7 +142,6 @@ public class BedWars extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onWordLoad(WorldLoadEvent event) {
-        Bukkit.broadcastMessage("WorldLoadEvent");
         if (event.getWorld().getName().equalsIgnoreCase("world")) {
             registerTeams();
         }
@@ -137,10 +153,10 @@ public class BedWars extends JavaPlugin implements Listener {
         Player player = event.getPlayer();
 
         event.setJoinMessage(null);
-        playerJoinMessage(player, onlinePlayers, maxPlayers);
+        sendPlayerJoinMessage(player, onlinePlayers, maxPlayers);
 
         if (status.equals(AWAITING_PLAYERS) && onlinePlayers == minPlayers) {
-            startCountdown();
+            countdown();
         }
     }
 
@@ -150,7 +166,7 @@ public class BedWars extends JavaPlugin implements Listener {
         Player player = event.getPlayer();
 
         event.setQuitMessage(null);
-        playerLeaveMessage(player, onlinePlayers, maxPlayers);
+        sendPlayerLeaveMessage(player, onlinePlayers, maxPlayers);
 
         if (status.equals(STARTING) && onlinePlayers < minPlayers) {
             status = AWAITING_PLAYERS;
@@ -165,7 +181,7 @@ public class BedWars extends JavaPlugin implements Listener {
 
             if (player.getHealth() - event.getDamage() < 1) {
                 event.setCancelled(true);
-                playerDeathHandler(player, attacker);
+                handlePlayerDeath(player, attacker);
             }
         }
     }
@@ -175,27 +191,14 @@ public class BedWars extends JavaPlugin implements Listener {
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
 
+            if (event.getCause().equals(DamageCause.VOID)) {
+                handleVoidDamage(event, player);
+            }
+
             if (status.equals(AWAITING_PLAYERS) || status.equals(STARTING)) {
                 event.setCancelled(true);
-
-                if (event.getCause().equals(DamageCause.VOID)) {
-                    player.teleport(new Location(Bukkit.getWorld("world"), 0, 65, 0));
-                }
-                return;
             }
-
-            if(event.getCause().equals(DamageCause.VOID)) {
-                event.setCancelled(true);
-                player.setFallDistance(0);
-                playerDeathHandler(player);
-            }
-
         }
-    }
-
-    @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event) {
-        event.setDeathMessage(null);
     }
 
     @EventHandler
@@ -203,11 +206,14 @@ public class BedWars extends JavaPlugin implements Listener {
         Player player = event.getPlayer();
         Block block = event.getBlock();
 
-        if (event.getBlock().getType().equals(Material.BED_BLOCK) && Team.isBedLocation(teams, block)) {
-            Team bedTeam = Team.getTeam(block);
-
-            bedTeam.breakBed(player, block);
+        if (block.getType().equals(Material.BED_BLOCK)) {
+            handleBedBreak(player, block);
         }
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        event.setDeathMessage(null);
     }
 
     @EventHandler
